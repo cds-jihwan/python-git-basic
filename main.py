@@ -1,3 +1,5 @@
+from quiz import Quiz
+
 def show_menu():
     """메뉴를 화면에 출력한다."""
     print("""
@@ -49,5 +51,19 @@ def main():
             print("게임을 종료합니다.")
             break
 
+def default_quizzes():
+    return [
+        Quiz("스택(Stack)의 데이터 처리 방식은?",
+             ["FIFO", "LIFO", "우선순위", "무작위"],
+             2,
+             "나중에 넣은 것이 먼저 나옵니다"),
+        # TODO: 6개 더
+    ]
 
-main()
+
+# 프로그램 시작
+
+try:
+    main()
+except (KeyboardInterrupt, EOFError):
+    print("\n\n프로그램을 종료합니다.")
