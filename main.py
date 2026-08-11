@@ -1,5 +1,6 @@
 from quiz import Quiz
 import json
+import random
 
 STATE_FILE = "state.json"
 
@@ -77,12 +78,16 @@ def play_quiz(quizzes):
     """퀴즈를 출제하고 맞힌 개수를 반환한다."""
     if not quizzes:
         print("\n등록된 퀴즈가 없습니다. 퀴즈를 먼저 추가해주세요.")
-        return None
+        return None, 0
 
-    print(f"\n📝 퀴즈를 시작합니다! (총 {len(quizzes)}문제)")
+    print(f"\n현재 {len(quizzes)}문제가 등록되어 있습니다.")
+    count = ask_number(f"몇 문제를 풀까요? (1-{len(quizzes)}): ", 1, len(quizzes))
+
+    selected = random.sample(quizzes, count)
+    print(f"\n📝 퀴즈를 시작합니다! (총 {count}문제)")
 
     correct_count = 0
-    for index, quiz in enumerate(quizzes, 1):
+    for index, quiz in enumerate(selected, 1):
         print("\n" + "-" * 40)
         quiz.display(index)
         user_answer = ask_number("\n정답 입력: ", 1, len(quiz.choices))
@@ -92,7 +97,7 @@ def play_quiz(quizzes):
         else:
             print(f"❌ 오답입니다. 정답은 {quiz.answer}번입니다.")
 
-    return correct_count
+    return correct_count, count
 
 
 def show_result(correct_count, total, best_score):
@@ -125,9 +130,9 @@ def main():
             print("게임을 종료합니다.")
             break
         elif choice == 1:
-            correct_count = play_quiz(quizzes)
+            correct_count, total = play_quiz(quizzes)
             if correct_count is not None:
-                best_score = show_result(correct_count, len(quizzes), best_score)
+                best_score = show_result(correct_count, total, best_score)
                 save_state(quizzes, best_score)
         elif choice == 2:
             add_quiz(quizzes)
