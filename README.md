@@ -159,3 +159,9 @@ python-git-basic/
 ![퀴즈 추가](docs/screenshots/add_quiz.png)
 ![점수 확인](docs/screenshots/score.png)
 -->
+
+## 개발 환경
+
+- macOS / VSCode
+- Python 3.13
+- Git 2.50
