@@ -15,7 +15,8 @@ def show_menu():
 2. 퀴즈 추가
 3. 퀴즈 목록
 4. 점수 확인
-5. 종료
+5. 퀴즈 삭제
+6. 종료
 ========================================""")
 
 
@@ -72,6 +73,23 @@ def list_quizzes(quizzes):
     for index, quiz in enumerate(quizzes, 1):
         print(f"[{index}] {quiz.question}")
     print("-" * 40)
+
+
+def delete_quiz(quizzes):
+    """번호를 입력받아 해당 퀴즈를 삭제한다."""
+    if not quizzes:
+        print("\n등록된 퀴즈가 없습니다.")
+        return False
+
+    list_quizzes(quizzes)
+    number = ask_number(f"\n삭제할 퀴즈 번호 (0: 취소, 1-{len(quizzes)}): ", 0, len(quizzes))
+    if number == 0:
+        print("삭제를 취소했습니다.")
+        return False
+
+    removed = quizzes.pop(number - 1)
+    print(f"\n🗑️ 삭제되었습니다: {removed.question}")
+    return True
 
 
 def play_quiz(quizzes):
@@ -143,8 +161,8 @@ def main():
     quizzes, best_score = load_state()
     while True:
         show_menu()
-        choice = ask_number("선택: ", 1, 5)
-        if choice == 5:
+        choice = ask_number("선택: ", 1, 6)
+        if choice == 6:
             save_state(quizzes, best_score)
             print("게임을 종료합니다.")
             break
@@ -160,6 +178,9 @@ def main():
             list_quizzes(quizzes)
         elif choice == 4:
             show_score(best_score)
+        elif choice == 5:
+            if delete_quiz(quizzes):
+                save_state(quizzes, best_score)
 
 
 def save_state(quizzes, best_score):
