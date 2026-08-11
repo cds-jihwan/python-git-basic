@@ -35,6 +35,37 @@ def ask_number(prompt, min_value, max_value):
             return int(choice)
 
 
+def play_quiz(quizzes):
+    """퀴즈를 출제하고 맞힌 개수를 반환한다."""
+    if not quizzes:
+        print("\n등록된 퀴즈가 없습니다. 퀴즈를 먼저 추가해주세요.")
+        return None
+
+    print(f"\n📝 퀴즈를 시작합니다! (총 {len(quizzes)}문제)")
+
+    correct_count = 0
+    for index, quiz in enumerate(quizzes, 1):
+        print("\n" + "-" * 40)
+        quiz.display(index)
+        user_answer = ask_number("\n정답 입력: ", 1, len(quiz.choices))
+        if quiz.is_correct(user_answer):
+            print("✅ 정답입니다!")
+            correct_count += 1
+        else:
+            print(f"❌ 오답입니다. 정답은 {quiz.answer}번입니다.")
+
+    return correct_count
+
+
+def show_result(correct_count, total):
+    """퀴즈 결과를 출력하고 점수를 반환한다."""
+    score = round(correct_count / total * 100)
+    print("\n" + "=" * 40)
+    print(f"🏆 결과: {total}문제 중 {correct_count}문제 정답! ({score}점)")
+    print("=" * 40)
+    return score
+
+
 def main():
     quizzes, best_score = load_state()
     while True:
@@ -44,6 +75,10 @@ def main():
             save_state(quizzes, best_score)
             print("게임을 종료합니다.")
             break
+        elif choice == 1:
+            correct_count = play_quiz(quizzes)
+            if correct_count is not None:
+                show_result(correct_count, len(quizzes))
         elif choice == 3:
             for i, q in enumerate(quizzes, 1):
                 q.display(i)
