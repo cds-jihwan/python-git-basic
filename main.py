@@ -95,13 +95,24 @@ def play_quiz(quizzes):
     return correct_count
 
 
-def show_result(correct_count, total):
-    """퀴즈 결과를 출력하고 점수를 반환한다."""
+def show_result(correct_count, total, best_score):
+    """퀴즈 결과를 출력하고 갱신된 최고 점수를 반환한다."""
     score = round(correct_count / total * 100)
     print("\n" + "=" * 40)
     print(f"🏆 결과: {total}문제 중 {correct_count}문제 정답! ({score}점)")
+    if score > best_score:
+        print("🎉 새로운 최고 점수입니다!")
+        best_score = score
     print("=" * 40)
-    return score
+    return best_score
+
+
+def show_score(best_score):
+    """최고 점수를 출력한다."""
+    if best_score == 0:
+        print("\n아직 퀴즈를 풀지 않았습니다. 퀴즈를 풀고 점수를 기록해보세요!")
+        return
+    print(f"\n🏆 최고 점수: {best_score}점")
 
 
 def main():
@@ -116,14 +127,15 @@ def main():
         elif choice == 1:
             correct_count = play_quiz(quizzes)
             if correct_count is not None:
-                show_result(correct_count, len(quizzes))
+                best_score = show_result(correct_count, len(quizzes), best_score)
+                save_state(quizzes, best_score)
         elif choice == 2:
             add_quiz(quizzes)
             save_state(quizzes, best_score)
         elif choice == 3:
             list_quizzes(quizzes)
-        else:
-            print("준비 중입니다")
+        elif choice == 4:
+            show_score(best_score)
 
 
 def save_state(quizzes, best_score):
