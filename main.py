@@ -1,6 +1,7 @@
 from quiz import Quiz
 import json
 import random
+from datetime import datetime
 
 STATE_FILE = "state.json"
 
@@ -135,8 +136,8 @@ def play_quiz(quizzes):
     return correct_count, count, hint_count
 
 
-def show_result(correct_count, total, hint_count, best_score):
-    """퀴즈 결과를 출력하고 갱신된 최고 점수를 반환한다."""
+def show_result(correct_count, total, hint_count, best_score, history):
+    """퀴즈 결과를 출력하고 기록에 남긴 뒤 갱신된 최고 점수를 반환한다."""
     score = max(0, round((correct_count - hint_count * 0.5) / total * 100))
     print("\n" + "=" * 40)
     print(f"🏆 결과: {total}문제 중 {correct_count}문제 정답! ({score}점)")
@@ -146,48 +147,70 @@ def show_result(correct_count, total, hint_count, best_score):
         print("🎉 새로운 최고 점수입니다!")
         best_score = score
     print("=" * 40)
+
+    history.append(
+        {
+            "date": datetime.now().strftime("%Y-%m-%d %H:%M"),
+            "total": total,
+            "correct": correct_count,
+            "score": score,
+        }
+    )
     return best_score
 
 
-def show_score(best_score):
-    """최고 점수를 출력한다."""
-    if best_score == 0:
+def show_score(best_score, history):
+    """최고 점수와 최근 게임 기록을 출력한다."""
+    if not history:
         print("\n아직 퀴즈를 풀지 않았습니다. 퀴즈를 풀고 점수를 기록해보세요!")
         return
+
     print(f"\n🏆 최고 점수: {best_score}점")
+    print(f"\n📜 최근 기록 (전체 {len(history)}회)")
+    print("-" * 40)
+    for record in history[-5:]:
+        print(
+            f"{record['date']} | "
+            f"{record['total']}문제 중 {record['correct']}문제 정답 | "
+            f"{record['score']}점"
+        )
+    print("-" * 40)
 
 
 def main():
-    quizzes, best_score = load_state()
+    quizzes, best_score, history = load_state()
     while True:
         show_menu()
         choice = ask_number("선택: ", 1, 6)
         if choice == 6:
-            save_state(quizzes, best_score)
+            save_state(quizzes, best_score, history)
             print("게임을 종료합니다.")
             break
         elif choice == 1:
             correct_count, total, hint_count = play_quiz(quizzes)
             if correct_count is not None:
-                best_score = show_result(correct_count, total, hint_count, best_score)
-                save_state(quizzes, best_score)
+                best_score = show_result(
+                    correct_count, total, hint_count, best_score, history
+                )
+                save_state(quizzes, best_score, history)
         elif choice == 2:
             add_quiz(quizzes)
-            save_state(quizzes, best_score)
+            save_state(quizzes, best_score, history)
         elif choice == 3:
             list_quizzes(quizzes)
         elif choice == 4:
-            show_score(best_score)
+            show_score(best_score, history)
         elif choice == 5:
             if delete_quiz(quizzes):
-                save_state(quizzes, best_score)
+                save_state(quizzes, best_score, history)
 
 
-def save_state(quizzes, best_score):
-    """퀴즈 목록과 최고 점수를 state.json에 저장한다."""
+def save_state(quizzes, best_score, history):
+    """퀴즈 목록과 최고 점수, 게임 기록을 state.json에 저장한다."""
     data = {
         "quizzes": [q.to_dict() for q in quizzes],
         "best_score": best_score,
+        "history": history,
     }
     try:
         with open(STATE_FILE, "w", encoding="utf-8") as f:
@@ -197,21 +220,22 @@ def save_state(quizzes, best_score):
 
 
 def load_state():
-    """state.json을 읽어 (퀴즈 목록, 최고 점수)를 반환한다."""
+    """state.json을 읽어 (퀴즈 목록, 최고 점수, 게임 기록)을 반환한다."""
     try:
         with open(STATE_FILE, "r", encoding="utf-8") as f:
             data = json.load(f)
         quizzes = [Quiz.from_dict(d) for d in data["quizzes"]]
         best_score = data.get("best_score", 0)
+        history = data.get("history", [])
     except FileNotFoundError:
         print("📂 저장된 데이터가 없어 기본 퀴즈로 시작합니다.")
-        return default_quizzes(), 0
+        return default_quizzes(), 0, []
     except (json.JSONDecodeError, KeyError, TypeError, OSError):
         print("⚠️ 데이터 파일이 손상되어 기본 퀴즈로 복구합니다.")
-        return default_quizzes(), 0
+        return default_quizzes(), 0, []
 
     print(f"📂 저장된 데이터를 불러왔습니다. (퀴즈 {len(quizzes)}개, 최고점수 {best_score}점)")
-    return quizzes, best_score
+    return quizzes, best_score, history
 
 
 def default_quizzes():
