@@ -35,6 +35,31 @@ def ask_number(prompt, min_value, max_value):
             return int(choice)
 
 
+def ask_text(prompt):
+    """빈 값이 아닌 문자열이 들어올 때까지 반복해서 입력받는다."""
+    while True:
+        text = input(prompt).strip()
+        if text == "":
+            print("입력이 비어 있습니다. 다시 입력해주세요.")
+            continue
+        return text
+
+
+def add_quiz(quizzes):
+    """새 퀴즈를 입력받아 목록에 추가한다."""
+    print("\n📌 새로운 퀴즈를 추가합니다.\n")
+
+    question = ask_text("문제를 입력하세요: ")
+    choices = []
+    for number in range(1, 5):
+        choices.append(ask_text(f"선택지 {number}: "))
+    answer = ask_number("정답 번호 (1-4): ", 1, 4)
+    hint = input("힌트 (없으면 Enter): ").strip()
+
+    quizzes.append(Quiz(question, choices, answer, hint))
+    print("\n✅ 퀴즈가 추가되었습니다!")
+
+
 def play_quiz(quizzes):
     """퀴즈를 출제하고 맞힌 개수를 반환한다."""
     if not quizzes:
@@ -79,6 +104,9 @@ def main():
             correct_count = play_quiz(quizzes)
             if correct_count is not None:
                 show_result(correct_count, len(quizzes))
+        elif choice == 2:
+            add_quiz(quizzes)
+            save_state(quizzes, best_score)
         elif choice == 3:
             for i, q in enumerate(quizzes, 1):
                 q.display(i)
