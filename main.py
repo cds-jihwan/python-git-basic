@@ -1,4 +1,7 @@
 from quiz import Quiz
+import json
+
+STATE_FILE = "state.json"
 
 
 def show_menu():
@@ -33,17 +36,50 @@ def ask_number(prompt, min_value, max_value):
 
 
 def main():
+    quizzes, best_score = load_state()
     while True:
         show_menu()
         choice = ask_number("선택: ", 1, 5)
         if choice == 5:
+            save_state(quizzes, best_score)
             print("게임을 종료합니다.")
             break
         elif choice == 3:
-            for i, q in enumerate(default_quizzes(), 1):
+            for i, q in enumerate(quizzes, 1):
                 q.display(i)
         else:
             print("준비 중입니다")
+
+
+def save_state(quizzes, best_score):
+    """퀴즈 목록과 최고 점수를 state.json에 저장한다."""
+    data = {
+        "quizzes": [q.to_dict() for q in quizzes],
+        "best_score": best_score,
+    }
+    try:
+        with open(STATE_FILE, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+    except OSError:
+        print("⚠️ 데이터를 저장하지 못했습니다.")
+
+
+def load_state():
+    """state.json을 읽어 (퀴즈 목록, 최고 점수)를 반환한다."""
+    try:
+        with open(STATE_FILE, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        quizzes = [Quiz.from_dict(d) for d in data["quizzes"]]
+        best_score = data.get("best_score", 0)
+    except FileNotFoundError:
+        print("📂 저장된 데이터가 없어 기본 퀴즈로 시작합니다.")
+        return default_quizzes(), 0
+    except (json.JSONDecodeError, KeyError, TypeError, OSError):
+        print("⚠️ 데이터 파일이 손상되어 기본 퀴즈로 복구합니다.")
+        return default_quizzes(), 0
+
+    print(f"📂 저장된 데이터를 불러왔습니다. (퀴즈 {len(quizzes)}개, 최고점수 {best_score}점)")
+    return quizzes, best_score
 
 
 def default_quizzes():

@@ -57,9 +57,7 @@ python-git-basic/
 ├── main.py           # 진입점. 메뉴 출력, 입력 검증, 기본 퀴즈 데이터
 ├── quiz.py           # Quiz 클래스 (퀴즈 한 문제)
 ├── README.md
-├── .gitignore
-└── files/
-    └── roadmap.md    # 개발 진행 순서 메모
+└── .gitignore 
 ```
 
 ## 데이터 파일 설명
