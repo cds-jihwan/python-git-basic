@@ -60,6 +60,19 @@ def add_quiz(quizzes):
     print("\n✅ 퀴즈가 추가되었습니다!")
 
 
+def list_quizzes(quizzes):
+    """등록된 퀴즈 목록을 번호와 함께 출력한다."""
+    if not quizzes:
+        print("\n등록된 퀴즈가 없습니다. 퀴즈를 먼저 추가해주세요.")
+        return
+
+    print(f"\n📋 등록된 퀴즈 목록 (총 {len(quizzes)}개)\n")
+    print("-" * 40)
+    for index, quiz in enumerate(quizzes, 1):
+        print(f"[{index}] {quiz.question}")
+    print("-" * 40)
+
+
 def play_quiz(quizzes):
     """퀴즈를 출제하고 맞힌 개수를 반환한다."""
     if not quizzes:
@@ -108,8 +121,7 @@ def main():
             add_quiz(quizzes)
             save_state(quizzes, best_score)
         elif choice == 3:
-            for i, q in enumerate(quizzes, 1):
-                q.display(i)
+            list_quizzes(quizzes)
         else:
             print("준비 중입니다")
 
