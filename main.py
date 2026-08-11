@@ -78,7 +78,7 @@ def play_quiz(quizzes):
     """퀴즈를 출제하고 맞힌 개수를 반환한다."""
     if not quizzes:
         print("\n등록된 퀴즈가 없습니다. 퀴즈를 먼저 추가해주세요.")
-        return None, 0
+        return None, 0, 0
 
     print(f"\n현재 {len(quizzes)}문제가 등록되어 있습니다.")
     count = ask_number(f"몇 문제를 풀까요? (1-{len(quizzes)}): ", 1, len(quizzes))
@@ -87,24 +87,43 @@ def play_quiz(quizzes):
     print(f"\n📝 퀴즈를 시작합니다! (총 {count}문제)")
 
     correct_count = 0
+    hint_count = 0
     for index, quiz in enumerate(selected, 1):
         print("\n" + "-" * 40)
         quiz.display(index)
-        user_answer = ask_number("\n정답 입력: ", 1, len(quiz.choices))
+        if quiz.hint:
+            print("\n(0을 입력하면 힌트를 볼 수 있습니다. 점수는 절반만 인정됩니다)")
+
+        used_hint = False
+        while True:
+            user_answer = ask_number("\n정답 입력: ", 0, len(quiz.choices))
+            if user_answer != 0:
+                break
+            if not quiz.hint:
+                print("💡 이 문제에는 힌트가 없습니다.")
+            elif used_hint:
+                print("💡 이미 힌트를 확인했습니다.")
+            else:
+                used_hint = True
+                hint_count += 1
+                print(f"💡 힌트: {quiz.hint}")
+
         if quiz.is_correct(user_answer):
             print("✅ 정답입니다!")
             correct_count += 1
         else:
             print(f"❌ 오답입니다. 정답은 {quiz.answer}번입니다.")
 
-    return correct_count, count
+    return correct_count, count, hint_count
 
 
-def show_result(correct_count, total, best_score):
+def show_result(correct_count, total, hint_count, best_score):
     """퀴즈 결과를 출력하고 갱신된 최고 점수를 반환한다."""
-    score = round(correct_count / total * 100)
+    score = max(0, round((correct_count - hint_count * 0.5) / total * 100))
     print("\n" + "=" * 40)
     print(f"🏆 결과: {total}문제 중 {correct_count}문제 정답! ({score}점)")
+    if hint_count:
+        print(f"💡 힌트 {hint_count}회 사용으로 점수가 차감되었습니다.")
     if score > best_score:
         print("🎉 새로운 최고 점수입니다!")
         best_score = score
@@ -130,9 +149,9 @@ def main():
             print("게임을 종료합니다.")
             break
         elif choice == 1:
-            correct_count, total = play_quiz(quizzes)
+            correct_count, total, hint_count = play_quiz(quizzes)
             if correct_count is not None:
-                best_score = show_result(correct_count, total, best_score)
+                best_score = show_result(correct_count, total, hint_count, best_score)
                 save_state(quizzes, best_score)
         elif choice == 2:
             add_quiz(quizzes)
