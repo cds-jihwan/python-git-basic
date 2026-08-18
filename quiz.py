@@ -1,11 +1,10 @@
 class Quiz:
     """퀴즈 한 문제를 표현한다."""
 
-    def __init__(self, question, choices, answer, hint=""):
+    def __init__(self, question, choices, answer):
         self.question = question
         self.choices = choices
         self.answer = answer
-        self.hint = hint
 
     def display(self, index):
         """문제 번호와 선택지를 화면에 출력한다."""
@@ -25,10 +24,9 @@ class Quiz:
             "question": self.question,
             "choices": self.choices,
             "answer": self.answer,
-            "hint": self.hint,
         }
 
     @classmethod
     def from_dict(cls, data):
         """dict를 다시 Quiz 객체로 되돌린다."""
-        return cls(data["question"], data["choices"], data["answer"], data.get("hint", ""))
+        return cls(data["question"], data["choices"], data["answer"])
