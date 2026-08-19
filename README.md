@@ -136,12 +136,11 @@ python-git-basic/
 
 ## 실행 화면
 
-<!-- 스크린샷을 docs/screenshots/ 에 저장하고 아래 주석을 해제하세요
-![메뉴](docs/screenshots/menu.png)
-![퀴즈 풀기](docs/screenshots/play.png)
-![퀴즈 추가](docs/screenshots/add_quiz.png)
-![점수 확인](docs/screenshots/score.png)
--->
+
+![메뉴](screenshots/menu.png)
+![퀴즈 풀기](screenshots/play.png)
+![퀴즈 추가](screenshots/add_quiz.png)
+![점수 확인](screenshots/score.png)
 
 ## 개발 환경
 
